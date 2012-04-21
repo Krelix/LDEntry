@@ -12,31 +12,33 @@ package
 	public class PlayState extends FlxState
 	{
 		[Embed(source = "../resources/rail.png")] private var railPNG:Class;
-		[Embed(source = "../resources/background1.png")] private var bg1PNG:Class;
-		[Embed(source = "../resources/background2.png")] private var bg2PNG:Class;
 		[Embed(source = "../resources/cursor.png")] private var cursorPNG:Class;
 		[Embed(source = "../resources/StressBarBack.png")] private var stressBarPNG:Class;
 		[Embed(source = "../resources/StressText.png")] private var stressTextPNG:Class;
+		[Embed(source = "../resources/frenchie1.png")] private var frenchie1PNG:Class;
 		private var level:FlxTilemap;
 		private var rail:FlxSprite;
-		private var bg1:FlxSprite;
-		private var bg2:FlxSprite;
 		private var stressBar:FlxSprite;
 		private var stressText:FlxSprite;
 		private var stressInside:FlxSprite;
 		private var camera:FlxCamera;
 		private var ennemies:FlxGroup;
 		private var previousMouseState:Mouse;
+		private var manager:MapManager;
+		private var colors:Array;
 		
 		public function PlayState() 
 		{
 			rail = new FlxSprite();
-			bg1 = new FlxSprite();
-			bg2 = new FlxSprite();
 			stressBar = new FlxSprite();
 			stressText = new FlxSprite();
 			stressInside = new FlxSprite();
 			ennemies = new FlxGroup();
+			manager = new MapManager();
+			colors = new Array("0xFFFF0000");
+			colors.push("0xFF00FF00");
+			colors.push("0xFF0000FF");
+			FlxG.log("colors : " + colors.length);
 		}
 		
 		override public function create():void
@@ -45,20 +47,9 @@ package
 			FlxG.debug = true;
 			FlxG.mouse.load(cursorPNG, 1, -24, -25);
 			FlxG.mouse.show();
-			// The first scrolling background.
-			bg1.loadGraphic(bg1PNG, false, false, 480, 320);
-			bg1.velocity.x = -50;
-			add(bg1);
-
-			// The second background
-			bg2.loadGraphic(bg2PNG, false, false, 480, 320);
-			// Place it after the first backgound.
-			// Could probably use a group...
-			// Or FlxScrollZone. Needs some refactoring anyway.
-			bg2.x = bg1.width;
-			bg2.y = 0;
-			bg2.velocity.x = -50;
-			add(bg2);
+			
+			// The backgrounds :
+			add(manager);
 			
 			// The main character
 			rail.loadGraphic(railPNG);
@@ -73,11 +64,11 @@ package
 			for (var i:int = 0; i < 5; i++)
 			{
 				var ennemy:FlxSprite = new FlxSprite();
-				ennemy.makeGraphic(10, 10, 0xFFFF8888);
-				ennemy.x = FlxG.random() * (bg1.width / 2) + 100;
-				ennemy.y = FlxG.random() * (bg1.height / 2);
-				ennemy.velocity.x = -( FlxG.random() * 10 + 50);
-				FlxG.log("ennemy " + i + " : " + ennemy.x + " " + ennemy.y);
+				ennemy.loadGraphic(frenchie1PNG);
+				ennemy.x = 500;
+				ennemy.y = uint( Number(FlxG.height / 40) * FlxG.random()) * ennemy.height;
+				FlxG.log(ennemy.y);
+				ennemy.velocity.x = -( FlxG.random() * 20 + 70);
 				ennemies.add(ennemy);
 			}
 			
@@ -110,29 +101,39 @@ package
 		override public function update():void 
 		{
 			super.update();
-
-			if (bg1.x <= -bg1.width)
-				bg1.x = bg2.x + bg2.width;
-			if (bg2.x <= -bg2.width)
-				bg2.x = bg1.x + bg1.width;
 				
 			if (stressInside.scale.x < 64)
 			{
-				// Check if the mouse click 
-				if (previousMouseState.justPressed() &&
-					FlxG.mouse.pressed())
+				manager.update();
+				var mouseX:int = FlxG.mouse.screenX;
+				var mouseY:int = FlxG.mouse.screenY;
+				
+				for (var key:String in ennemies.members)
 				{
-					var mouseX:int = FlxG.mouse.screenX;
-					var mouseY:int = FlxG.mouse.screenY;
-					for (var key:String in ennemies.members)
+					var ennemy:FlxSprite = ennemies.members[key];
+					// If the ennemy is no longer visible, we kill it
+					if (ennemy.x + ennemy.width < 0)
+						ennemy.kill();
+					// If the mouse has been clicked
+					if (previousMouseState.justPressed() &&
+						FlxG.mouse.pressed())
 					{
-						var ennemy:FlxSprite = ennemies.members[key];
 						if (ennemy.x < mouseX &&
 							ennemy.x + ennemy.width > mouseX &&
 							ennemy.y < mouseY &&
 							ennemy.y + ennemy.height > mouseY)
+						{
 							ennemy.kill();
+						}
 					}
+				}
+				var existsEnnemy:FlxSprite = ennemies.getFirstAvailable() as FlxSprite;
+				if (existsEnnemy != null)
+				{
+					existsEnnemy.reset(500, FlxG.random() * FlxG.height / 2);
+					existsEnnemy.velocity.x = -(FlxG.random() * 20 + 70);
+					FlxG.log("CurrentIndex: " + manager.getCurrentIndex() + " " + colors[manager.getCurrentIndex()]);
+					existsEnnemy.makeGraphic(10, 10, uint(colors[manager.getCurrentIndex()]) );
 				}
 			}
 			else {
