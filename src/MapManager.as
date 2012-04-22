@@ -10,32 +10,35 @@ package
 	 */
 	public class MapManager extends FlxBasic
 	{
-		[Embed(source = "../resources/background1.png")] private var bg1PNG:Class;
-		[Embed(source = "../resources/background2.png")] private var bg2PNG:Class;
-		[Embed(source = "../resources/background3.png")] private var bg3PNG:Class;
+		[Embed(source = "../resources/Paris.png")] private var parisPNG:Class;
+		[Embed(source = "../resources/London.png")] private var londonPNG:Class;
+		//[Embed(source = "../resources/background3.png")] private var bg3PNG:Class;
 		private var listMap:Vector.<Map>;
 		private var currentIndex:int;
-		private static var MAP_WIDTH:int = 480;
-		private var updateCount:Boolean = false;
+		private static var MAP_WIDTH:int = 580;
+		private var currentMapCounter:int;
 		
 		public function MapManager() 
 		{
 			super();
-			FlxG.watch(this, "currentIndex", "index");
+			listMap = new Vector.<Map>();
+		}
+		
+		public function init():void {
 			currentIndex = 0;
 			// Create a new Map with set velocity.
-			listMap = new Vector.<Map>();
-			var map:Map = new Map();
-			map.loadGraphic(bg1PNG);
+			var map:Map = new Map(MAP_WIDTH, 0);
+			map.loadGraphic(parisPNG);
 			listMap.push(map);
 			// Create a second map, and set it's X to be right after the first one.
-			map = new Map((listMap.length) * MAP_WIDTH + 1);
-			map.loadGraphic(bg2PNG);
+			map = new Map((listMap.length + 1) * MAP_WIDTH );
+			map.loadGraphic(londonPNG);
 			listMap.push(map);
-			map = new Map((listMap.length) * MAP_WIDTH + 1);
+			/*map = new Map((listMap.length) * MAP_WIDTH + 1);
 			map.loadGraphic(bg3PNG);
-			listMap.push(map);
+			listMap.push(map);*/
 		}
+		
 		
 		// Get the current background index for ennemy instantiation.
 		public function getCurrentIndex():int
@@ -55,6 +58,7 @@ package
 		override public function update():void
 		{
 			super.update();
+			this.currentMapCounter = listMap[currentIndex].getCount();
 			var updateObject:Function = function(item:Map, index:int, vector:Vector.<Map>):void {
 				
 				if (item.x <= MAP_WIDTH / 2) {
@@ -85,6 +89,11 @@ package
 				item.draw();
 			}
 			listMap.forEach(drawObject);
+		}
+		
+		public function getCurrentMapCounter():int
+		{
+			return currentMapCounter;
 		}
 	}
 }

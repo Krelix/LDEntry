@@ -1,7 +1,9 @@
 package  
 {
 	import org.flixel.FlxBasic;
+	import org.flixel.FlxEmitter;
 	import org.flixel.FlxG;
+	import org.flixel.FlxSprite;
 	import org.flixel.system.input.Mouse;
 	
 	/**
@@ -15,6 +17,8 @@ package
 		 */
 		[Embed(source = "../resources/frenchie1.png")] private var frenchie1PNG:Class;
 		[Embed(source = "../resources/cycliste.png")] private var cyclistePNG:Class;
+		[Embed(source = "../resources/guard.png")] private var guardPNG:Class;
+		[Embed(source = "../resources/londonBus.png")] private var busPNG:Class;
 		[Embed(source = "../resources/russian1.png")] private var russianPNG:Class;
 		[Embed(source = "../resources/danceuse.png")] private var dancerPNG:Class;
 		
@@ -25,6 +29,7 @@ package
 		private var currentMapIndex:int;
 		private var currentMapCounter: int;
 		private var stress:uint;
+		private var _parent:PlayState;
 		
 		public function EnnemyManager() 
 		{
@@ -33,7 +38,7 @@ package
 			prevMapIndex = 0;
 			maxEnnemies = 10;
 			currentMapCounter = 0;
-			ennemies = new Vector.<Ennemy>();			
+			ennemies = new Vector.<Ennemy>();
 		}
 		
 		public function init():void
@@ -41,19 +46,22 @@ package
 			previousMouseState = FlxG.mouse;
 			var i:int = 0 ;
 			// FOUND IT !!!!!!!!!!!!
-			for (i = 0 ; i < 4; i++)
+			for (i = 0 ; i < 2; i++)
 			{
-				var fr:Ennemy = new Ennemy(500, FlxG.random() * FlxG.height / 2);
+				var fr:Ennemy = new Ennemy(FlxG.random() * 300 + 700, FlxG.random() * FlxG.height / 2);
 				fr.velocity.x = -(FlxG.random() * 50 + 70);
-				fr.loadGraphic(frenchie1PNG,false, false, 17, 40, false);
+				fr.loadGraphic(frenchie1PNG, false, false, 17, 40, false);
+				fr.addAnimation("idle", [0]);
+				fr.addAnimation("death", [1, 2], 3, false);
 				ennemies.push(fr);
 			}
-			for ( i = 0; i < 4; i++)
+			for ( i = 0; i < 2; i++)
 			{
-				var fr2:Ennemy = new Ennemy(500, FlxG.random() * FlxG.height / 2);
-				fr2.loadGraphic(cyclistePNG);
-				FlxG.log("x : " + i +" " + fr2.x + " " + fr2.active );
+				var fr2:Ennemy = new Ennemy(FlxG.random() * 300 + 700, FlxG.random() * FlxG.height / 2);
+				fr2.loadGraphic(cyclistePNG, false, false, 42, 40, false);
 				fr2.velocity.x = -(FlxG.random() * 50 + 70);
+				fr2.addAnimation("idle", [0]);
+				fr2.addAnimation("death", [1, 2], 3, false);
 				ennemies.push(fr2);
 			}
 		}
@@ -88,7 +96,8 @@ package
 				
 				// If the ennemy is no longer visible, we kill it
 				if (item.x + item.width < 0 && item.exists) {
-					stress += 5;
+					if(!item.isDead)
+						stress += 5;
 					resetIndex = index;
 					item.kill();
 				}
@@ -99,10 +108,10 @@ package
 					if (item.x < mouseX &&
 						item.x + item.width > mouseX &&
 						item.y < mouseY &&
-						item.y + item.height > mouseY)
+						item.y + item.height > mouseY
+						&& !item.isDead)
 					{
-						item.kill();
-						resetIndex = index;
+						item.play("death", false);
 					}
 				}
 			}
@@ -111,22 +120,27 @@ package
 			{
 				ennemies[resetIndex].reset(500, FlxG.random() * FlxG.height / 2);
 				ennemies[resetIndex].velocity.x = -(FlxG.random() * 50 + 70);
+				ennemies[resetIndex].isDead = false;
+				ennemies[resetIndex].play("idle", true);
 				if (prevMapIndex != currentMapIndex)
 				{
-					FlxG.log(currentMapIndex);
 					switch(currentMapIndex)
 					{
 						case 1:
 							if(resetIndex % 2 == 0)
-								ennemies[resetIndex].loadGraphic(russianPNG);
+								ennemies[resetIndex].loadGraphic(guardPNG, false, false, 13, 40);
 							else
-								ennemies[resetIndex].loadGraphic(dancerPNG);
+								ennemies[resetIndex].loadGraphic(busPNG, false, false, 42, 40 );
 							break;
 						default :
-							if(resetIndex % 2 == 0)
-								ennemies[resetIndex].loadGraphic(frenchie1PNG);
+							if (resetIndex % 2 == 0)
+							{
+								ennemies[resetIndex].loadGraphic(frenchie1PNG, false, false, 17, 40);
+							}
 							else
-								ennemies[resetIndex].loadGraphic(cyclistePNG);
+							{
+								ennemies[resetIndex].loadGraphic(cyclistePNG, false, false, 42, 40);
+							}
 					}
 				}
 			}
@@ -136,19 +150,21 @@ package
 				{
 					var newEn:Ennemy = new Ennemy(500, FlxG.random() * FlxG.height / 2);
 					newEn.velocity.x = -(FlxG.random() * 50 + 70);
+					newEn.addAnimation("idle", [0]);
+					newEn.addAnimation("death", [1, 2], 3, false);
 					switch(currentMapIndex)
 					{
 						case 1:
-							if(resetIndex % 2 == 0)
-								newEn.loadGraphic(russianPNG);
+							if (i % 2 == 0)
+								newEn.loadGraphic(guardPNG, false, false, 13, 40);
 							else
-								newEn.loadGraphic(dancerPNG);
+								newEn.loadGraphic(busPNG, false, false, 42, 40);
 							break;
 						default :
-							if(resetIndex % 2 == 0)
-								newEn.loadGraphic(frenchie1PNG);
+							if(i % 2 == 0)
+								newEn.loadGraphic(frenchie1PNG, false, false, 17, 40);
 							else
-								newEn.loadGraphic(cyclistePNG);
+								newEn.loadGraphic(cyclistePNG, false, false, 42, 40);
 					}
 					ennemies.push(newEn);
 				}

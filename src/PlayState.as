@@ -11,12 +11,14 @@ package
 	 */
 	public class PlayState extends FlxState
 	{
+		[Embed(source = "../resources/intermission.png")] private var backgroundPNG:Class;
 		[Embed(source = "../resources/rail.png")] private var railPNG:Class;
 		[Embed(source = "../resources/mainChar.png")] private var charPNG:Class;
 		[Embed(source = "../resources/cursor.png")] private var cursorPNG:Class;
 		[Embed(source = "../resources/StressBarBack.png")] private var stressBarPNG:Class;
 		[Embed(source = "../resources/StressText.png")] private var stressTextPNG:Class;
 		
+		private var background:FlxSprite
 		private var level:FlxTilemap;
 		private var rail:FlxSprite;
 		private var char:FlxSprite;
@@ -38,7 +40,9 @@ package
 			stressInside = new FlxSprite();
 			//ennemies = new FlxGroup();
 			mapManager = new MapManager();
-
+			background = new FlxSprite;
+			background.loadGraphic(backgroundPNG);
+			mapManager.init();
 		}
 		
 		override public function create():void
@@ -47,6 +51,8 @@ package
 			FlxG.debug = true;
 			FlxG.mouse.load(cursorPNG, 1, -24, -25);
 			FlxG.mouse.show();
+			
+			add(background);
 			
 			// The backgrounds :
 			add(mapManager);
@@ -100,13 +106,10 @@ package
 		
 		override public function update():void 
 		{
-			super.update();
-			//mapManager.get
 			if (stressInside.scale.x < 64)
 			{
-				mapManager.update();
 				ennemyManager.setCurrentMapIndex(mapManager.getCurrentIndex());
-				ennemyManager.update();
+				ennemyManager.setCurrentMapCounter(mapManager.getCurrentMapCounter());
 				stressInside.scale.x = ennemyManager.getStress();
 			}
 			else {
@@ -114,6 +117,7 @@ package
 				if(char.frame == 6)
 					FlxG.switchState(new GameOverState);
 			}
+			super.update();
 		}
 	}
 }
