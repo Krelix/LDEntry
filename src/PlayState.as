@@ -27,7 +27,6 @@ package
 		private var ennemies:FlxGroup;
 		
 		private var mapManager:MapManager;
-		private var colors:Array;
 		private var ennemyManager:EnnemyManager;
 		
 		public function PlayState() 
@@ -39,11 +38,7 @@ package
 			stressInside = new FlxSprite();
 			//ennemies = new FlxGroup();
 			mapManager = new MapManager();
-			ennemyManager = new EnnemyManager();
-			colors = new Array("0xFFFF0000");
-			colors.push("0xFF00FF00");
-			colors.push("0xFF0000FF");
-			FlxG.log("colors : " + colors.length);
+
 		}
 		
 		override public function create():void
@@ -62,29 +57,31 @@ package
 			FlxG.worldBounds = new FlxRect(0, 0, FlxG.width, FlxG.height);
 			FlxG.camera.setBounds(0, 0, FlxG.width, FlxG.height);
 			FlxG.camera.follow(rail, FlxCamera.STYLE_LOCKON);
-			add(rail);
+			
 			
 			char.loadGraphic(charPNG, true, false, 17, 27);
 			char.x = 20;
 			char.y = rail.y - char.height / 2 ;
-			char.addAnimation("death", [1, 2, 3, 4, 5, 5, 5, 5, 5, 5, 6], 10, false);
+			char.frame = 0;
+			char.addAnimation("death", [1, 2, 3, 4, 5, 5, 5, 5, 5, 5, 6], 7, false);
 			add(char);
 			
+			ennemyManager = new EnnemyManager();
 			ennemyManager.init();
-			add(ennemyManager);
+			
 			
 			// Stress Bar
 			stressBar.loadGraphic(stressBarPNG);
 			stressBar.x = FlxG.width - stressBar.width - 1;
 			stressBar.y = FlxG.height - stressBar.height - 1;
 			
-			add(stressBar);
+			
 			
 			stressText.loadGraphic(stressTextPNG);
 			stressText.x = stressBar.x + 4;
 			stressText.y = stressBar.y - 3;
 			
-			add(stressText);
+			
 			
 			stressInside.makeGraphic(1, 8, 0xFFFF2222);
 			stressInside.x = stressBar.x + 2;
@@ -92,6 +89,11 @@ package
 			stressInside.scrollFactor.x = stressInside.scrollFactor.y = 0;
 			stressInside.origin.x = stressInside.origin.y = 0;
 			stressInside.scale.x = 0;
+			
+			add(rail);
+			add(stressBar);
+			add(stressText);
+			add(ennemyManager);
 			add(stressInside);
 			
 		}
@@ -99,13 +101,13 @@ package
 		override public function update():void 
 		{
 			super.update();
-				
+			//mapManager.get
 			if (stressInside.scale.x < 64)
 			{
 				mapManager.update();
 				ennemyManager.setCurrentMapIndex(mapManager.getCurrentIndex());
 				ennemyManager.update();
-				stressInside.scale.x += 1;
+				stressInside.scale.x = ennemyManager.getStress();
 			}
 			else {
 				char.play("death", false);

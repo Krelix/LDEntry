@@ -13,10 +13,9 @@ package
 		
 		public function Map(_x:int = 0, _y:int=0 ) 
 		{
-			count = 0;
+			super(_x, _y)
+			count = 1;
 			velocity.x = -50;
-			this.x = _x;
-			this.y = _y;
 		}
 		
 		public function setCount(c:int):void

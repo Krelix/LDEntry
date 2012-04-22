@@ -16,6 +16,7 @@ package
 		private var listMap:Vector.<Map>;
 		private var currentIndex:int;
 		private static var MAP_WIDTH:int = 480;
+		private var updateCount:Boolean = false;
 		
 		public function MapManager() 
 		{
@@ -55,10 +56,14 @@ package
 		{
 			super.update();
 			var updateObject:Function = function(item:Map, index:int, vector:Vector.<Map>):void {
-				if (item.x <= MAP_WIDTH / 2)
+				
+				if (item.x <= MAP_WIDTH / 2) {
 					currentIndex = index;
-				if (item.x <= -item.width)
+				}
+				if (item.x <= -item.width) {
+					item.setCount(item.getCount() +1);
 					item.x = (listMap.length - 1 ) * MAP_WIDTH;
+				}
 				item.update();
 			}
 			listMap.forEach(updateObject);

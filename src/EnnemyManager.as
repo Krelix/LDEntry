@@ -23,36 +23,44 @@ package
 		private var maxEnnemies:int;
 		private var prevMapIndex:int;
 		private var currentMapIndex:int;
-		
+		private var currentMapCounter: int;
+		private var stress:uint;
 		
 		public function EnnemyManager() 
 		{
+			super();
+			stress = 0;
 			prevMapIndex = 0;
 			maxEnnemies = 10;
-			ennemies = new Vector.<Ennemy>();
-			for (var i:int = 0 ; i < 5; i++)
-			{
-				var fr:Ennemy = new Ennemy();
-				fr.loadGraphic(frenchie1PNG);
-				fr.x = FlxG.random() * 480 + (480/ 5) * i;
-				fr.y = 300;
-				fr.velocity.x = -100;
-				ennemies.push(fr);
-			}
-			for (var i:int = 0 ; i < 5; i++)
-			{
-				var fr:Ennemy = new Ennemy();
-				fr.loadGraphic(cyclistePNG);
-				fr.x = FlxG.random() * 480 + (480/ 5) * i;
-				fr.y = 300;
-				fr.velocity.x = -150;
-				ennemies.push(fr);
-			}
+			currentMapCounter = 0;
+			ennemies = new Vector.<Ennemy>();			
 		}
 		
 		public function init():void
 		{
 			previousMouseState = FlxG.mouse;
+			var i:int = 0 ;
+			// FOUND IT !!!!!!!!!!!!
+			for (i = 0 ; i < 4; i++)
+			{
+				var fr:Ennemy = new Ennemy(500, FlxG.random() * FlxG.height / 2);
+				fr.velocity.x = -(FlxG.random() * 50 + 70);
+				fr.loadGraphic(frenchie1PNG,false, false, 17, 40, false);
+				ennemies.push(fr);
+			}
+			for ( i = 0; i < 4; i++)
+			{
+				var fr2:Ennemy = new Ennemy(500, FlxG.random() * FlxG.height / 2);
+				fr2.loadGraphic(cyclistePNG);
+				FlxG.log("x : " + i +" " + fr2.x + " " + fr2.active );
+				fr2.velocity.x = -(FlxG.random() * 50 + 70);
+				ennemies.push(fr2);
+			}
+		}
+		
+		public function setCurrentMapCounter(count:int):void
+		{
+			currentMapCounter = count;
 		}
 		
 		public function setCurrentMapIndex(index:int):void
@@ -79,7 +87,8 @@ package
 				var mouseY:int = FlxG.mouse.screenY;
 				
 				// If the ennemy is no longer visible, we kill it
-				if (item.x + item.width < 0) {
+				if (item.x + item.width < 0 && item.exists) {
+					stress += 5;
 					resetIndex = index;
 					item.kill();
 				}
@@ -101,7 +110,7 @@ package
 			if (resetIndex > -1)
 			{
 				ennemies[resetIndex].reset(500, FlxG.random() * FlxG.height / 2);
-				ennemies[resetIndex].velocity.x = -(FlxG.random() * 20 + 70);
+				ennemies[resetIndex].velocity.x = -(FlxG.random() * 50 + 70);
 				if (prevMapIndex != currentMapIndex)
 				{
 					FlxG.log(currentMapIndex);
@@ -119,6 +128,29 @@ package
 							else
 								ennemies[resetIndex].loadGraphic(cyclistePNG);
 					}
+				}
+			}
+			if (currentMapCounter * 4 > ennemies.length)
+			{
+				for (var i:int; i < 4; i++)
+				{
+					var newEn:Ennemy = new Ennemy(500, FlxG.random() * FlxG.height / 2);
+					newEn.velocity.x = -(FlxG.random() * 50 + 70);
+					switch(currentMapIndex)
+					{
+						case 1:
+							if(resetIndex % 2 == 0)
+								newEn.loadGraphic(russianPNG);
+							else
+								newEn.loadGraphic(dancerPNG);
+							break;
+						default :
+							if(resetIndex % 2 == 0)
+								newEn.loadGraphic(frenchie1PNG);
+							else
+								newEn.loadGraphic(cyclistePNG);
+					}
+					ennemies.push(newEn);
 				}
 			}
 			previousMouseState = FlxG.mouse;
@@ -140,6 +172,11 @@ package
 				item.draw();
 			}
 			ennemies.forEach(drawObject);
+		}
+		
+		public function getStress():uint
+		{
+			return stress;
 		}
 		
 	}
