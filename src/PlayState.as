@@ -69,7 +69,6 @@ package
 			char.x = 20;
 			char.y = rail.y - char.height / 2 ;
 			char.frame = 0;
-			char.addAnimation("death", [1, 2, 3, 4, 5, 5, 5, 5, 5, 5, 6], 7, false);
 			add(char);
 			
 			ennemyManager = new EnnemyManager();
@@ -109,13 +108,13 @@ package
 			if (stressInside.scale.x < 64)
 			{
 				ennemyManager.setCurrentMapIndex(mapManager.getCurrentIndex());
-				ennemyManager.setCurrentMapCounter(mapManager.getCurrentMapCounter());
+				ennemyManager.setMapCount(mapManager.getMapCount());
 				stressInside.scale.x = ennemyManager.getStress();
 			}
 			else {
-				char.play("death", false);
-				if(char.frame == 6)
-					FlxG.switchState(new GameOverState);
+				var temp:GameOverState = new GameOverState();
+				temp.setKillCount(ennemyManager.getKillCount());
+				FlxG.switchState(temp);
 			}
 			super.update();
 		}

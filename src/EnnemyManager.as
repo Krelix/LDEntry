@@ -21,15 +21,18 @@ package
 		[Embed(source = "../resources/londonBus.png")] private var busPNG:Class;
 		[Embed(source = "../resources/russian1.png")] private var russianPNG:Class;
 		[Embed(source = "../resources/danceuse.png")] private var dancerPNG:Class;
+		[Embed(source = "../resources/japanese.png")] private var japanesePNG:Class;
+		[Embed(source = "../resources/japanese2.png")] private var japanese2PNG:Class;
 		
 		private var ennemies:Vector.<Ennemy>;
 		private var previousMouseState:Mouse;
 		private var maxEnnemies:int;
 		private var prevMapIndex:int;
 		private var currentMapIndex:int;
-		private var currentMapCounter: int;
+		private var mapCount:int;
 		private var stress:uint;
 		private var _parent:PlayState;
+		private var killCount:uint;
 		
 		public function EnnemyManager() 
 		{
@@ -37,8 +40,9 @@ package
 			stress = 0;
 			prevMapIndex = 0;
 			maxEnnemies = 10;
-			currentMapCounter = 0;
+			mapCount = 0;
 			ennemies = new Vector.<Ennemy>();
+			killCount = 0;
 		}
 		
 		public function init():void
@@ -66,14 +70,19 @@ package
 			}
 		}
 		
-		public function setCurrentMapCounter(count:int):void
+		public function setMapCount(count:int):void
 		{
-			currentMapCounter = count;
+			mapCount = count;
 		}
 		
 		public function setCurrentMapIndex(index:int):void
 		{
 			currentMapIndex = index;
+		}
+		
+		public function getKillCount():uint
+		{
+			return killCount;
 		}
 		
 		override public function preUpdate():void 
@@ -111,6 +120,8 @@ package
 						item.y + item.height > mouseY
 						&& !item.isDead)
 					{
+						killCount += 1;
+						FlxG.log("KillCount: " + killCount);
 						item.play("death", false);
 					}
 				}
@@ -122,29 +133,36 @@ package
 				ennemies[resetIndex].velocity.x = -(FlxG.random() * 50 + 70);
 				ennemies[resetIndex].isDead = false;
 				ennemies[resetIndex].play("idle", true);
-				if (prevMapIndex != currentMapIndex)
+				switch(currentMapIndex)
 				{
-					switch(currentMapIndex)
-					{
-						case 1:
-							if(resetIndex % 2 == 0)
-								ennemies[resetIndex].loadGraphic(guardPNG, false, false, 13, 40);
-							else
-								ennemies[resetIndex].loadGraphic(busPNG, false, false, 42, 40 );
-							break;
-						default :
-							if (resetIndex % 2 == 0)
-							{
-								ennemies[resetIndex].loadGraphic(frenchie1PNG, false, false, 17, 40);
-							}
-							else
-							{
-								ennemies[resetIndex].loadGraphic(cyclistePNG, false, false, 42, 40);
-							}
-					}
+					case 1:
+						if(resetIndex % 2 == 0)
+							ennemies[resetIndex].loadGraphic(guardPNG, false, false, 13, 40);
+						else
+							ennemies[resetIndex].loadGraphic(busPNG, false, false, 42, 40 );
+						break;
+						// Moscow
+					case 2:
+						if (i % 2 == 0)
+							ennemies[resetIndex].loadGraphic(dancerPNG, false, false, 18, 40);
+						else
+							ennemies[resetIndex].loadGraphic(russianPNG, false, false, 17, 40);
+						break;
+					// Tokyo
+					case 3:
+						if (i % 2 == 0)
+							ennemies[resetIndex].loadGraphic(japanesePNG, false, false, 13, 40);
+						else
+							ennemies[resetIndex].loadGraphic(japanese2PNG, false, false, 15, 40);
+						break;
+					default :
+						if (resetIndex % 2 == 0)
+							ennemies[resetIndex].loadGraphic(frenchie1PNG, false, false, 17, 40);
+						else
+							ennemies[resetIndex].loadGraphic(cyclistePNG, false, false, 42, 40);
 				}
 			}
-			if (currentMapCounter * 4 > ennemies.length)
+			if (mapCount * 4 > ennemies.length)
 			{
 				for (var i:int; i < 4; i++)
 				{
@@ -154,11 +172,26 @@ package
 					newEn.addAnimation("death", [1, 2], 3, false);
 					switch(currentMapIndex)
 					{
+						// London
 						case 1:
 							if (i % 2 == 0)
 								newEn.loadGraphic(guardPNG, false, false, 13, 40);
 							else
 								newEn.loadGraphic(busPNG, false, false, 42, 40);
+							break;
+						// Moscow
+						case 2:
+						if (i % 2 == 0)
+							newEn.loadGraphic(dancerPNG, false, false, 17, 40);
+						else
+							newEn.loadGraphic(russianPNG, false, false, 17, 40);
+						break;
+						// Tokyo
+						case 3:
+							if (i % 2 == 0)
+								newEn.loadGraphic(japanesePNG, false, false, 13, 40);
+							else
+								newEn.loadGraphic(japanese2PNG, false, false, 15, 40);
 							break;
 						default :
 							if(i % 2 == 0)

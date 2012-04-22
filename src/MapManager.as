@@ -12,11 +12,13 @@ package
 	{
 		[Embed(source = "../resources/Paris.png")] private var parisPNG:Class;
 		[Embed(source = "../resources/London.png")] private var londonPNG:Class;
+		[Embed(source = "../resources/Moscow.png")] private var moscowPNG:Class;
+		[Embed(source = "../resources/Tokyo.png")] private var tokyoPNG:Class;
 		//[Embed(source = "../resources/background3.png")] private var bg3PNG:Class;
 		private var listMap:Vector.<Map>;
 		private var currentIndex:int;
 		private static var MAP_WIDTH:int = 580;
-		private var currentMapCounter:int;
+		private var mapCount:int;
 		
 		public function MapManager() 
 		{
@@ -34,6 +36,14 @@ package
 			map = new Map((listMap.length + 1) * MAP_WIDTH );
 			map.loadGraphic(londonPNG);
 			listMap.push(map);
+			
+			map = new Map((listMap.length + 1) * MAP_WIDTH );
+			map.loadGraphic(moscowPNG);
+			listMap.push(map);
+			
+			map = new Map((listMap.length + 1) * MAP_WIDTH );
+			map.loadGraphic(tokyoPNG);
+			listMap.push(map);
 			/*map = new Map((listMap.length) * MAP_WIDTH + 1);
 			map.loadGraphic(bg3PNG);
 			listMap.push(map);*/
@@ -44,6 +54,11 @@ package
 		public function getCurrentIndex():int
 		{
 			return currentIndex;
+		}
+		
+		public function getMapCount():int
+		{
+			return mapCount;
 		}
 		
 		override public function preUpdate():void 
@@ -58,14 +73,15 @@ package
 		override public function update():void
 		{
 			super.update();
-			this.currentMapCounter = listMap[currentIndex].getCount();
 			var updateObject:Function = function(item:Map, index:int, vector:Vector.<Map>):void {
 				
-				if (item.x <= MAP_WIDTH / 2) {
+				if (item.x <= MAP_WIDTH / 2
+					&& item.x >= MAP_WIDTH / 4)
+				{
 					currentIndex = index;
 				}
 				if (item.x <= -item.width) {
-					item.setCount(item.getCount() +1);
+					mapCount++;
 					item.x = (listMap.length - 1 ) * MAP_WIDTH;
 				}
 				item.update();
@@ -89,11 +105,6 @@ package
 				item.draw();
 			}
 			listMap.forEach(drawObject);
-		}
-		
-		public function getCurrentMapCounter():int
-		{
-			return currentMapCounter;
 		}
 	}
 }
