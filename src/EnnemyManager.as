@@ -47,7 +47,6 @@ package
 			mapCount = 0;
 			ennemies = new Vector.<Ennemy>();
 			killCount = 0;
-			FlxG.stream("../resources/pew.mp3", 0.75, false);
 		}
 		
 		public function init():void
