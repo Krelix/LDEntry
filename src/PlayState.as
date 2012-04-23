@@ -17,6 +17,7 @@ package
 		[Embed(source = "../resources/cursor.png")] private var cursorPNG:Class;
 		[Embed(source = "../resources/StressBarBack.png")] private var stressBarPNG:Class;
 		[Embed(source = "../resources/StressText.png")] private var stressTextPNG:Class;
+		[Embed(source = "../resources/bgMusic.mp3")] private var backgroundMusic:Class;
 		
 		private var background:FlxSprite
 		private var level:FlxTilemap;
@@ -27,6 +28,9 @@ package
 		private var stressInside:FlxSprite;
 		private var camera:FlxCamera;
 		private var ennemies:FlxGroup;
+		private var previousKillCount:int;
+		private var instructions:FlxText;
+		private var elapsedSinceBeginning:Number;
 		
 		private var mapManager:MapManager;
 		private var ennemyManager:EnnemyManager;
@@ -43,6 +47,13 @@ package
 			background = new FlxSprite;
 			background.loadGraphic(backgroundPNG);
 			mapManager.init();
+			previousKillCount = -1;
+			elapsedSinceBeginning = 0;
+		}
+		
+		public function setPreviousKillCount(count:int):void
+		{
+			previousKillCount = count;
 		}
 		
 		override public function create():void
@@ -53,6 +64,10 @@ package
 			FlxG.mouse.show();
 			
 			add(background);
+			
+			instructions = new FlxText(10, 10, FlxG.width / 2, "YOU vs It's a small world's attraction! Kill those damn dolls!");
+			instructions.setFormat(null, 12, 0xDD0000, "center", 0xFF000000);
+			add(instructions);
 			
 			// The backgrounds :
 			add(mapManager);
@@ -101,10 +116,13 @@ package
 			add(ennemyManager);
 			add(stressInside);
 			
+			FlxG.playMusic(backgroundMusic);
 		}
 		
 		override public function update():void 
 		{
+			if (elapsedSinceBeginning >= 3)
+				instructions.kill();
 			if (stressInside.scale.x < 64)
 			{
 				ennemyManager.setCurrentMapIndex(mapManager.getCurrentIndex());
@@ -113,9 +131,12 @@ package
 			}
 			else {
 				var temp:GameOverState = new GameOverState();
+				FlxG.music.stop();
 				temp.setKillCount(ennemyManager.getKillCount());
+				temp.setPreviousKillCount(previousKillCount);
 				FlxG.switchState(temp);
 			}
+			elapsedSinceBeginning += FlxG.elapsed;
 			super.update();
 		}
 	}

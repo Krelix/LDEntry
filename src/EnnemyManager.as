@@ -3,6 +3,7 @@ package
 	import org.flixel.FlxBasic;
 	import org.flixel.FlxEmitter;
 	import org.flixel.FlxG;
+	import org.flixel.FlxSound;
 	import org.flixel.FlxSprite;
 	import org.flixel.system.input.Mouse;
 	
@@ -23,6 +24,9 @@ package
 		[Embed(source = "../resources/danceuse.png")] private var dancerPNG:Class;
 		[Embed(source = "../resources/japanese.png")] private var japanesePNG:Class;
 		[Embed(source = "../resources/japanese2.png")] private var japanese2PNG:Class;
+		[Embed(source = "../resources/nyc.png")] private var nyc1PNG:Class;
+		[Embed(source = "../resources/nyc2.png")] private var nyc2PNG:Class;
+		[Embed(source = "../resources/pew.mp3")] private var pewMP3:Class;
 		
 		private var ennemies:Vector.<Ennemy>;
 		private var previousMouseState:Mouse;
@@ -43,6 +47,7 @@ package
 			mapCount = 0;
 			ennemies = new Vector.<Ennemy>();
 			killCount = 0;
+			FlxG.stream("../resources/pew.mp3", 0.75, false);
 		}
 		
 		public function init():void
@@ -106,7 +111,7 @@ package
 				// If the ennemy is no longer visible, we kill it
 				if (item.x + item.width < 0 && item.exists) {
 					if(!item.isDead)
-						stress += 5;
+						stress += 2;
 					resetIndex = index;
 					item.kill();
 				}
@@ -114,6 +119,7 @@ package
 				if (previousMouseState.justPressed() &&
 					FlxG.mouse.pressed())
 				{
+					FlxG.play(pewMP3);
 					if (item.x < mouseX &&
 						item.x + item.width > mouseX &&
 						item.y < mouseY &&
@@ -141,7 +147,7 @@ package
 						else
 							ennemies[resetIndex].loadGraphic(busPNG, false, false, 42, 40 );
 						break;
-						// Moscow
+					// Moscow
 					case 2:
 						if (i % 2 == 0)
 							ennemies[resetIndex].loadGraphic(dancerPNG, false, false, 18, 40);
@@ -154,6 +160,13 @@ package
 							ennemies[resetIndex].loadGraphic(japanesePNG, false, false, 13, 40);
 						else
 							ennemies[resetIndex].loadGraphic(japanese2PNG, false, false, 15, 40);
+						break;
+					// New York
+					case 4:
+						if (i % 2 == 0)
+							ennemies[resetIndex].loadGraphic(nyc1PNG, false, false, 13, 40);
+						else
+							ennemies[resetIndex].loadGraphic(nyc2PNG, false, false, 37, 40);
 						break;
 					default :
 						if (resetIndex % 2 == 0)
@@ -192,6 +205,13 @@ package
 								newEn.loadGraphic(japanesePNG, false, false, 13, 40);
 							else
 								newEn.loadGraphic(japanese2PNG, false, false, 15, 40);
+							break;
+						// New York
+						case 4:
+							if (i % 2 == 0)
+								newEn.loadGraphic(nyc1PNG, false, false, 13, 40);
+							else
+								newEn.loadGraphic(nyc2PNG, false, false, 37, 40);
 							break;
 						default :
 							if(i % 2 == 0)

@@ -14,6 +14,7 @@ package
 		[Embed(source = "../resources/London.png")] private var londonPNG:Class;
 		[Embed(source = "../resources/Moscow.png")] private var moscowPNG:Class;
 		[Embed(source = "../resources/Tokyo.png")] private var tokyoPNG:Class;
+		[Embed(source = "../resources/NewYork.png")] private var nycPNG:Class;
 		//[Embed(source = "../resources/background3.png")] private var bg3PNG:Class;
 		private var listMap:Vector.<Map>;
 		private var currentIndex:int;
@@ -44,9 +45,10 @@ package
 			map = new Map((listMap.length + 1) * MAP_WIDTH );
 			map.loadGraphic(tokyoPNG);
 			listMap.push(map);
-			/*map = new Map((listMap.length) * MAP_WIDTH + 1);
-			map.loadGraphic(bg3PNG);
-			listMap.push(map);*/
+			
+			map = new Map((listMap.length + 1) * MAP_WIDTH );
+			map.loadGraphic(nycPNG);
+			listMap.push(map);
 		}
 		
 		
